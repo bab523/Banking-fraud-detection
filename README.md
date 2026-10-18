@@ -3,20 +3,20 @@
 Data Engineering capstone project (Group 1).
 
 ## Architecture
-Producer (Kaggle creditcard.csv) -> Kafka (3 brokers, KRaft, topic txn_live: 3 partitions, replication 3) -> Rule engine -> Parquet -> Streamlit dashboard
+Producer (Kaggle creditcard.csv) -> Kafka (3 brokers, KRaft, txn_live: 3 partitions, RF 3) -> ML scoring (Random Forest) + rule engine -> Parquet -> Streamlit dashboard
 
-## Results
-- 1000 transactions (150 fraud, 850 normal)
-- 144 alerts, 138 frauds caught, detection rate 92%
+## Model results (held-out test set, 56,962 rows, 99 frauds)
+Precision 0.917, Recall 0.778, F1 0.842, ROC-AUC 0.978, 7 false alarms, 22 missed frauds.
 
 ## Run
     docker compose up -d
+    python models/train_model.py
     python producer/producer.py
-    python spark_jobs/stream_rules_lite.py
+    python spark_jobs/score_stream.py
     streamlit run producer/dashboard.py
 
 ## Fault tolerance
-One Kafka broker stopped (docker stop kafka2): cluster and producer kept working; ISR recovered after restart.
+kafka2 stopped: ISR shrank, producer kept working; ISR restored after restart. See docs/.
 
 ## Limitations
-Laptop has 4.8 GB RAM, so HBase, Hive, Airflow and Spark Structured Streaming were replaced by lightweight alternatives (Kafka consumer, Parquet, Streamlit).
+4.8 GB RAM laptop: Spark Streaming, HBase, Hive and Airflow replaced by lightweight tools. Scoring runs as a micro-batch.
