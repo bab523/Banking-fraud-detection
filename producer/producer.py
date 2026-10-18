@@ -8,7 +8,8 @@ producer = KafkaProducer(
     acks="all",
 )
 
-df = pd.read_csv("data/creditcard.csv", nrows=1000)
+full = pd.read_csv("data/creditcard.csv")
+df = pd.concat([full[full.Class==1].head(150), full[full.Class==0].head(850)]).sample(frac=1, random_state=42).reset_index(drop=True)
 
 for i, row in df.iterrows():
     msg = row.to_dict()
