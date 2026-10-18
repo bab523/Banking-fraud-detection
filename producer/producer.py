@@ -8,8 +8,7 @@ producer = KafkaProducer(
     acks="all",
 )
 
-full = pd.read_csv("data/creditcard.csv")
-df = pd.concat([full[full.Class==1].head(150), full[full.Class==0].head(850)]).sample(frac=1, random_state=42).reset_index(drop=True)
+df = pd.read_csv("data/test_sample.csv")
 
 for i, row in df.iterrows():
     msg = row.to_dict()
@@ -17,7 +16,7 @@ for i, row in df.iterrows():
     producer.send("txn_live", msg)
     if i % 100 == 0:
         print("sent", i)
-    time.sleep(0.05)
+    time.sleep(0.02)
 
 producer.flush()
 print("done")
